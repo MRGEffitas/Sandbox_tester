@@ -1,6 +1,0 @@
-;The comment below contains SFX script commands
-
-Path=.\map
-Setup=sandbox_tester.exe
-Silent=1
-Overwrite=1

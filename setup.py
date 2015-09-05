@@ -1,6 +1,7 @@
 from distutils.core import setup
 import py2exe, sys, os
 import subprocess
+from sys import platform as _platform
 
 def run_command(cmd):
     out = ""
@@ -23,7 +24,8 @@ sys.argv.append('py2exe')
 
 mypath = 'C:\\devel\\eclipse_workspace_2\\python_scripts\\sandbox_mapping\\'
 
-data_files = [("",[mypath + "Microsoft.VC90.CRT.manifest", mypath + "msvcr90.dll"])]
+data_files = [("",[mypath + "Microsoft.VC90.CRT.manifest", mypath + "msvcr90.dll"
+                   , mypath + "7zS.sfx", mypath + "config.txt"])]
 
 setup(
     data_files=data_files,
@@ -37,6 +39,24 @@ setup(
 )
 
 os.chdir(mypath + '/dist')
-command = '"C:\\Program Files\\WinRAR\\rar.exe" a -r -sfx -z"'+mypath+'sfx.cnf" sandbox_tester2.exe sandbox_tester.exe Microsoft.VC90.CRT.manifest msvcr90.dll w9xpopen.exe'
-print(command)
-print(run_command(command))
+if _platform == "linux" or _platform == "linux2":
+    # create .7z file
+    command = '7z a sandbox_tester.7z sandbox_tester.exe Microsoft.VC90.CRT.manifest msvcr90.dll w9xpopen.exe'
+    print(command)
+    print(run_command(command))
+    # concat sfx + config + 7z
+    command = "cat 7zS.sfx config.txt sandbox_tester.7z > sandbox_tester_sfx.exe"
+    print(command)
+    print(run_command(command))
+    
+else:
+    #command = '"C:\\Program Files\\WinRAR\\rar.exe" a -r -sfx -z"'+mypath+'sfx.cnf" sandbox_tester_sfx.exe sandbox_tester.exe Microsoft.VC90.CRT.manifest msvcr90.dll w9xpopen.exe'
+        # create .7z file
+    command = 'C:\\Program Files (x86)\\7-Zip\\7z.exe a sandbox_tester.7z sandbox_tester.exe Microsoft.VC90.CRT.manifest msvcr90.dll w9xpopen.exe'
+    print(command)
+    print(run_command(command))
+    # concat sfx + config + 7z
+    command = 'cmd /c "copy /B 7zS.sfx + config.txt + sandbox_tester.7z sandbox_tester_sfx.exe"'
+    print(command)
+    print(run_command(command))
+    

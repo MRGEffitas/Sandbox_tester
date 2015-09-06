@@ -32,22 +32,22 @@ WinXP - Win10
 	and you have the IP of `<YOUR_IP>`. The following config creates a new nameserver (ns.`<YOUR_DOMAIN>`) 
 	which will resolve all subdomain requests to tt.`<YOUR_DOMAIN>`. This is needed to set up the DNS server.
 
-```
-A (Host):
-	host: @
-	points to: <YOUR_IP>
+	```
+	A (Host):
+		host: @
+		points to: <YOUR_IP>
 
-	host: tt
-	points to: <YOUR_IP>
+		host: tt
+		points to: <YOUR_IP>
 
-Cname(Alias):
-	host: ns
-	Points to: @
+	Cname(Alias):
+		host: ns
+		Points to: @
 
-NS record:
-	host: tt
-	points to: ns.<YOUR_DOMAIN>
-```
+	NS record:
+		host: tt
+		points to: ns.<YOUR_DOMAIN>
+	```
 
 3. Start the http_server.py and dns_server.py on your server.
 

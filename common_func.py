@@ -2,6 +2,7 @@ import os.path
 import socket
 import random
 import string
+import sys
 
 class MyException(Exception):
     pass
@@ -11,7 +12,7 @@ def readconfig():
     if os.path.isfile("global_config.ini"):     
         execfile("global_config.ini", config)
     else :
-        exit("Config file not found")    
+        sys.exit("Config file not found")    
 
     return config
 

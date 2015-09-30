@@ -114,7 +114,11 @@ use filename_decrypt_send.py on a txt file where the created filenames are liste
   * TIME: current time on the sandbox
   * USER: curren username
   * USERDOM: current user domain or hostname
-  * VBIO: VIDEOBIOSVERSION from registry (this is rarely faked in VBOX/VMware)
+  * VBIO: VIDEOBIOSVERSION from registry
   * WIDTH: screen width
   * WINT: applications with GUI Windows
   
+
+## Known issues
+  * Some commands are buggy on XP - but it is safe to assume that if it is XP it is a sandbox ;) 
+  * Some results are not forwarded on non-english systems, like russian or chinese

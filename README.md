@@ -67,6 +67,7 @@ use filename_decrypt_send.py on a txt file where the created filenames are liste
   * BTT: WMI OS lastbootuptime (does not work on XP)
   * BV: WMI BIOS version, e.g. HPQOEM
   * CDR: WMI CDROM
+  * COMPN: COMPUTERNAME environment variable
   * CPC: WMI CPU core numbers
   * CPL: WMI CPU number of logical processors
   * CPN: WMI CPU name, e.g. Intel(R) Core(TM) i7-4702MQ CPU @ 2.40GHz
@@ -74,18 +75,21 @@ use filename_decrypt_send.py on a txt file where the created filenames are liste
   * CST: WMI computersystem systemtype, e.g. x64-based PC
   * DDC: WMI diskdrive caption, e.g. TOSHIBA MQ01ABD075
   * DDM: WMI diskdrive model, e.g. TOSHIBA MQ01ABD075
+  * EFI: Is this OS booted with legacy BIOS or EFI
   * EX: WMI process executablepath, e.g. C:\Windows\System32\cmd.exe
   * EXEC: current running process name
   * EXECP: current running process path
   * FSP: WMI logicaldisk freespace
   * FW1: Windows firewall state
-  * FW2: Windows (XP) firewall state 
+  * FW2: Windows (XP) firewall state
+  * GPT: The partition layout is based on GPT or MBR
   * HEIGHT: screen height
   * HOOKD: check whether windll.kernel32.DeleteFileW is hooked from user mode or not
   * HOOKR: check whether windll.advapi32.RegOpenKeyExA is hooked from user mode or not
   * ID: WMI OS installation date
   * LDN: WMI logicaldisk name, e.g. C:, D:, E:
   * LOCALPORT: check local port 445 is open or not
+  * LOGONS: The LOGONSERVER environment variable. Domain controller if joined to AD, local computer if not joined.
   * LS: WMI logicaldisk size
   * MAC: network interface mace address
   * MON: WMI monitor name, e.g. Generic PnP Monitor
